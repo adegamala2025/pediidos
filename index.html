@@ -1,190 +1,295 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Calculadora Adega Mala</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;padding:0;background:#f6f7fb;color:#222}
-    header{background:#0b5ed7;color:#fff;padding:14px 18px;text-align:center}
-    header h1{margin:0;font-size:1.25rem}
-    .container{max-width:900px;margin:18px auto;padding:18px;background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(10,10,20,0.08)}
-    label{display:block;margin:8px 0 6px;font-weight:600}
-    input[type=text]{width:100%;padding:12px;border:1px solid #d6d8df;border-radius:8px;font-size:1rem}
-    button,.action-btn{background:#0b5ed7;color:#fff;padding:12px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;display:inline-block}
-    button:hover,.action-btn:hover{background:#094cb1}
-    #map{height:360px;border-radius:12px;margin-top:12px}
-    .result{margin-top:14px;padding:16px;border-radius:12px;background:#f1f6ff}
-    .muted{color:#666;font-size:0.9rem}
-    footer{margin-top:12px;font-size:0.85rem;color:#666;text-align:center}
-    #loader{display:none;margin-top:12px;text-align:center}
-    .spinner{width:32px;height:32px;border:4px solid #ddd;border-top:4px solid #0b5ed7;border-radius:50%;margin:auto;animation:spin 1s linear infinite}
-    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-    .error{color:#b00020;margin-top:10px;font-weight:600}
-    .actions{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px}
-    .wa-btn{background:#25d366}
-    .wa-btn:hover{background:#1ea956}
-    .maps-btn{background:#ff5733}
-    .maps-btn:hover{background:#e04e2d}
-    @media (max-width:600px){
-      .actions{flex-direction:column}
-      button,.action-btn{width:100%}
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Adega Mala 🍾</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <header>
-    <h1>📦 Calculadora Adega Mala</h1>
-  </header>
+<body class="bg-gray-900 text-gray-100">
 
-  <main class="container">
-    <p><strong>Origem fixa:</strong> Ladeira do Ypiranga, 29 — Cidade Nova, Salvador (CEP: 40313-030)</p>
-    <p class="muted">Preço por km: <strong>R$1,00</strong>. Valor mínimo: <strong>R$3,00</strong> para distâncias menores que 3 km.</p>
+<header class="bg-gray-800 text-white shadow-md sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+    <h1 class="text-xl font-bold">🍾 Adega Mala</h1>
+  </div>
+</header>
 
-    <div>
-      <label for="address">Destino (endereço ou CEP em Salvador)</label>
-      <input type="text" id="address" placeholder="Ex: CEP 40020-000 ou Av. Sete de Setembro, Salvador" />
+<main class="max-w-6xl mx-auto p-6 space-y-8">
+
+<!-- Produtos Whisky -->
+<section>
+  <h2 class="text-2xl font-semibold border-b border-gray-700 pb-2 mb-4">Whisky</h2>
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Red Label 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 89,90</p>
+      <button onclick="addToCart('Red Label 1L',89.90)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
     </div>
-
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button id="btnCalc">Calcular frete</button>
-      <button id="btnClear" style="background:#6c757d">Limpar</button>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Old Parr 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 135,00</p>
+      <button onclick="addToCart('Old Parr 1L',135.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
     </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Jack Daniel's 07 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 130,00</p>
+      <button onclick="addToCart(\"Jack Daniel's 07 1L\",130.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Jack Daniel's Maçã 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 130,00</p>
+      <button onclick="addToCart(\"Jack Daniel's Maçã 1L\",130.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Jack Daniel's Honey 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 130,00</p>
+      <button onclick="addToCart(\"Jack Daniel's Honey 1L\",130.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Jack Daniel's Fire 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 130,00</p>
+      <button onclick="addToCart(\"Jack Daniel's Fire 1L\",130.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Cavalo Branco 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 67,00</p>
+      <button onclick="addToCart('Cavalo Branco 1L',67.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Ballantines 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 67,00</p>
+      <button onclick="addToCart('Ballantines 1L',67.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Black Label 1L</h3>
+      <p class="text-blue-400 font-semibold">R$ 165,00</p>
+      <button onclick="addToCart('Black Label 1L',165.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+  </div>
+</section>
 
-    <div id="loader"><div class="spinner"></div><p>Calculando rota...</p></div>
+<!-- Gelo Saborizado -->
+<section>
+  <h2 class="text-2xl font-semibold border-b border-gray-700 pb-2 mb-4">Gelo Saborizado</h2>
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">CocoLeve</h3>
+      <p class="text-blue-400 font-semibold">R$ 3,50/unidade</p>
+      <button onclick="addToCart('CocoLeve',3.50)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+  </div>
+</section>
 
-    <div class="result" id="result" aria-live="polite" style="display:none">
-      <div id="outDistance"></div>
-      <div id="outPrice" style="font-size:1.2rem;font-weight:700;margin-top:6px"></div>
-      <div class="muted" id="note"></div>
-      <div class="error" id="errorMsg" style="display:none"></div>
-      <div class="actions">
-        <a id="btnWhatsapp" href="#" target="_blank" class="action-btn wa-btn" style="display:none">📲 Enviar no WhatsApp</a>
-        <a id="btnMaps" href="#" target="_blank" class="action-btn maps-btn" style="display:none">🗺️ Abrir no Google Maps</a>
+<!-- Diversos -->
+<section>
+  <h2 class="text-2xl font-semibold border-b border-gray-700 pb-2 mb-4">Diversos</h2>
+  <div class="grid md:grid-cols-3 gap-6">
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">43</h3>
+      <p class="text-blue-400 font-semibold">R$ 130,00</p>
+      <button onclick="addToCart('43',130.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">43 Chocolate</h3>
+      <p class="text-blue-400 font-semibold">R$ 155,00</p>
+      <button onclick="addToCart('43 Chocolate',155.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Ballena</h3>
+      <p class="text-blue-400 font-semibold">R$ 130,00</p>
+      <button onclick="addToCart('Ballena',130.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Enerup 2L</h3>
+      <p class="text-blue-400 font-semibold">R$ 12,00</p>
+      <button onclick="addToCart('Enerup 2L',12.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">51 Ice Limão/Balada</h3>
+      <p class="text-blue-400 font-semibold">R$ 6,50</p>
+      <button onclick="addToCart('51 Ice Limão/Balada',6.50)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Pepsi 2L</h3>
+      <p class="text-blue-400 font-semibold">R$ 9,50</p>
+      <button onclick="addToCart('Pepsi 2L',9.50)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Água 500ml</h3>
+      <p class="text-blue-400 font-semibold">R$ 2,00</p>
+      <button onclick="addToCart('Água 500ml',2.00)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+    <div class="bg-gray-800 shadow rounded-xl p-6 flex flex-col space-y-2">
+      <h3 class="font-bold text-lg text-gray-100">Heineken 330ml</h3>
+      <p class="text-blue-400 font-semibold">R$ 7,50</p>
+      <button onclick="addToCart('Heineken 330ml',7.50)" class="mt-auto bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700">Adicionar</button>
+    </div>
+  </div>
+</section>
+
+<!-- Carrinho e Pagamento -->
+<section class="max-w-4xl mx-auto mt-10 bg-gray-800 shadow-md rounded-xl p-6">
+  <h2 class="text-xl font-bold mb-4 text-gray-100">🛒 Carrinho</h2>
+  <div id="cartItems" class="space-y-2"></div>
+  <p class="mt-4 text-lg text-gray-100">Total: <span id="cartTotal">R$ 0,00</span></p>
+
+  <!-- Adicionando Copão 700ml -->
+  <div class="mt-4">
+    <label class="block font-semibold mb-2 text-gray-100">Adicionar Copão 700ml (R$ 2,00/unidade)</label>
+    <button onclick="addToCart('Copão 700ml',2.00)" class="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700">Adicionar Copão</button>
+  </div>
+
+  <div class="mt-6">
+    <label class="block font-semibold mb-2 text-gray-100">Forma de recebimento:</label>
+    <select id="recebimento" onchange="updatePagamentoOptions()" class="w-full border border-gray-700 rounded p-2 bg-gray-900 text-gray-100">
+      <option value="retirada">Retirada</option>
+      <option value="entrega">Entrega</option>
+    </select>
+  </div>
+
+  <!-- Mensagem de entrega -->
+  <div id="entregaMsg" class="mt-2 text-yellow-400 font-semibold hidden">
+    ⚠️ O valor da entrega será cotado na finalização do pedido pelo WhatsApp.
+  </div>
+
+  <div id="enderecoContainer" class="mt-4 hidden">
+    <label class="block font-semibold mb-2 text-gray-100">Endereço completo (Rua, Número, Bairro)</label>
+    <input type="text" id="endereco" placeholder="Ex: Rua A, 123 - Bairro B" class="w-full border border-gray-700 rounded p-2 bg-gray-900 text-gray-100" />
+  </div>
+
+  <div class="mt-4">
+    <label class="block font-semibold mb-2 text-gray-100">Forma de pagamento:</label>
+    <select id="pagamento" onchange="handlePagamento()" class="w-full border border-gray-700 rounded p-2 bg-gray-900 text-gray-100"></select>
+  </div>
+
+  <div id="pixInfo" class="hidden mt-4 bg-gray-700 border border-gray-600 rounded-lg p-4 text-center">
+    <p class="font-semibold mb-2 text-gray-100">Chave Pix:</p>
+    <div class="flex items-center justify-center space-x-2">
+      <span id="pixKey" class="font-mono text-gray-100">afspagamentos@outlook.com</span>
+      <button onclick="copyPix()" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Copiar</button>
+    </div>
+    <div class="mt-4">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=afspagamentos@outlook.com&size=200x200" alt="QR Code Pix" class="mx-auto rounded shadow">
+    </div>
+    <button id="finalizarPix" onclick="finalizarPedido()" disabled class="mt-4 bg-green-600 text-white px-4 py-2 rounded w-full font-bold">Copiar Pix e Finalizar Pedido</button>
+  </div>
+
+  <button id="finalizarBtn" onclick="finalizarPedido()" class="w-full mt-4 bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700">Finalizar no WhatsApp</button>
+</section>
+
+<footer class="text-center text-gray-400 py-6 mt-10 border-t border-gray-700">
+  🚀 Adega Mala - Feito com ❤️ e hospedado no GitHub Pages
+</footer>
+
+<script>
+// Mesma lógica de carrinho, Pix e WhatsApp
+let cart = [];
+
+function addToCart(name, price){
+  let item = cart.find(i => i.name === name && !i.isObs);
+  if(item) item.qty++; 
+  else cart.push({name, price, qty:1, obs:""});
+  renderCart();
+}
+
+function renderCart(){
+  let items = document.getElementById("cartItems");
+  items.innerHTML = "";
+  let total = 0;
+  cart.forEach((p,index) => {
+    total += p.price * p.qty;
+    items.innerHTML += `<div class="flex flex-col border-b border-gray-700 pb-2">
+      <div class="flex justify-between items-center">
+        <span>${p.qty}x ${p.name} -> R$ ${(p.price*p.qty).toFixed(2)}</span>
+        <div>
+          <input type="text" placeholder="Observação..." value="${p.obs}" class="border border-gray-600 rounded px-2 py-1 text-sm bg-gray-900 text-gray-100" oninput="updateObs(${index}, this.value)">
+          <button onclick="removeFromCart(${index})" class="ml-2 text-red-600 font-bold">X</button>
+        </div>
       </div>
-    </div>
+    </div>`;
+  });
+  document.getElementById("cartTotal").textContent = "R$ "+total.toFixed(2);
+}
 
-    <div id="map"></div>
+function updateObs(index,value){
+  cart[index].obs = value;
+}
 
-    <footer>
-      🚗 Cálculo feito com base na rota real via <strong>OSRM</strong> + <strong>OpenStreetMap</strong>.
-    </footer>
-  </main>
+function removeFromCart(index){
+  cart.splice(index,1);
+  renderCart();
+}
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const PRICE_PER_KM = 1.00;
-    const MIN_PRICE = 3.00;
+function updatePagamentoOptions(){
+  let recebimento = document.getElementById("recebimento").value;
+  let pagamento = document.getElementById("pagamento");
+  let enderecoContainer = document.getElementById("enderecoContainer");
+  let entregaMsg = document.getElementById("entregaMsg");
 
-    let origin = { lat: -12.9632984, lon: -38.4881642, address: 'Ladeira do Ypiranga, 29 - Cidade Nova, Salvador' };
+  pagamento.innerHTML = "";
+  if(recebimento === "retirada"){
+    pagamento.innerHTML += `<option value="debito">Débito</option>`;
+    pagamento.innerHTML += `<option value="credito">Crédito</option>`;
+    pagamento.innerHTML += `<option value="dinheiro">Dinheiro</option>`;
+    pagamento.innerHTML += `<option value="pix">Pix</option>`;
+    enderecoContainer.classList.add("hidden");
+    entregaMsg.classList.add("hidden");
+  } else {
+    pagamento.innerHTML += `<option value="pix">Pix</option>`;
+    enderecoContainer.classList.remove("hidden");
+    entregaMsg.classList.remove("hidden");
+  }
+  handlePagamento();
+}
 
-    const map = L.map('map').setView([origin.lat, origin.lon], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: 'Map data © OpenStreetMap contributors'
-    }).addTo(map);
+function handlePagamento(){
+  let pagamento = document.getElementById("pagamento").value;
+  let pixInfo = document.getElementById("pixInfo");
+  let finalizarBtn = document.getElementById("finalizarBtn");
+  if(pagamento === "pix"){
+    pixInfo.classList.remove("hidden");
+    finalizarBtn.classList.add("hidden");
+  } else {
+    pixInfo.classList.add("hidden");
+    finalizarBtn.classList.remove("hidden");
+  }
+}
 
-    const originMarker = L.marker([origin.lat, origin.lon]).addTo(map).bindPopup('Origem fixa: Ladeira do Ypiranga, 29').openPopup();
-    let destMarker = null;
-    let routeLine = null;
+function copyPix(){
+  const pixKey = document.getElementById("pixKey").textContent;
+  navigator.clipboard.writeText(pixKey).then(()=>{
+    alert("Chave Pix copiada!");
+    document.getElementById("finalizarPix").disabled = false;
+  });
+}
 
-    const nfKm = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const nfBR = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+function finalizarPedido(){
+  if(cart.length === 0){
+    alert("O carrinho está vazio!");
+    return;
+  }
+  let msg = "🍾 *Pedido - Adega Mala*%0A%0AItens:%0A";
+  let total = 0;
+  cart.forEach(p => {
+    msg += `${p.qty}x ${p.name} -> R$ ${(p.price*p.qty).toFixed(2)}`;
+    if(p.obs) msg += ` (Obs: ${p.obs})`;
+    msg += `%0A`;
+    total += p.price*p.qty;
+  });
+  msg += `%0ATotal: R$ ${total.toFixed(2)}%0A`;
+  let pagamento = document.getElementById("pagamento").value;
+  msg += `Forma de pagamento: ${pagamento}%0A`;
+  let recebimento = document.getElementById("recebimento").value;
+  msg += `Forma de recebimento: ${recebimento}%0A`;
+  if(recebimento === "entrega"){
+    let endereco = document.getElementById("endereco").value;
+    if(!endereco){ alert("Digite o endereço completo!"); return; }
+    msg += `Endereço: ${endereco}`;
+  }
+  window.open(`https://wa.me/5571991663037?text=${msg}`, "_blank");
+}
 
-    async function geocodeAddress(addr){
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(addr)}`;
-      const resp = await fetch(url);
-      const data = await resp.json();
-      if(!data || data.length === 0) throw new Error('Endereço/CEP não encontrado');
-      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), display_name: data[0].display_name };
-    }
-
-    async function getRoute(dest){
-      const url = `https://router.project-osrm.org/route/v1/driving/${origin.lon},${origin.lat};${dest.lon},${dest.lat}?overview=full&geometries=geojson`;
-      const resp = await fetch(url);
-      const data = await resp.json();
-      if(!data.routes || data.routes.length === 0) throw new Error('Não foi possível calcular rota');
-      return data.routes[0];
-    }
-
-    document.getElementById('btnCalc').addEventListener('click', async ()=>{
-      const addr = document.getElementById('address').value.trim();
-      const loader = document.getElementById('loader');
-      const resultDiv = document.getElementById('result');
-      const errorMsg = document.getElementById('errorMsg');
-      const btnWhatsapp = document.getElementById('btnWhatsapp');
-      const btnMaps = document.getElementById('btnMaps');
-
-      if(addr === ''){ 
-        errorMsg.textContent = 'Informe um endereço ou CEP de destino.';
-        errorMsg.style.display = 'block';
-        resultDiv.style.display = 'block';
-        return; 
-      }
-
-      loader.style.display = 'block';
-      errorMsg.style.display = 'none';
-      resultDiv.style.display = 'none';
-      btnWhatsapp.style.display = 'none';
-      btnMaps.style.display = 'none';
-
-      try{
-        const dest = await geocodeAddress(addr + ', Salvador, BA');
-        const route = await getRoute(dest);
-        const distanceKm = route.distance / 1000;
-        const roundedKm = Math.round(distanceKm * 100) / 100;
-
-        let price = distanceKm < 3 ? MIN_PRICE : distanceKm * PRICE_PER_KM;
-        let note = distanceKm < 3 ? 'Aplicado valor mínimo porque a distância é menor que 3 km.' : '';
-
-        document.getElementById('outDistance').textContent = `Distância da rota: ${nfKm.format(distanceKm)} km`;
-        document.getElementById('outPrice').textContent = `Frete: ${nfBR.format(price)}`;
-        document.getElementById('note').textContent = note;
-        resultDiv.style.display = 'block';
-
-        // Google Maps via lat/lon (garante que funciona)
-        const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin.lat},${origin.lon}&destination=${dest.lat},${dest.lon}`;
-
-        // WhatsApp mensagem curta
-        const msg =
-          `🚚 Novo frete!\n\n` +
-          `🏁 Destino: ${dest.display_name}\n` +
-          `📏 Distância: ${nfKm.format(distanceKm)} km\n` +
-          `💰 Valor: ${nfBR.format(price)}\n\n` +
-          `➡️ Abrir rota: ${mapsUrl}`;
-
-        btnWhatsapp.href = `https://wa.me/5571991663037?text=${encodeURIComponent(msg)}`;
-        btnWhatsapp.style.display = 'inline-block';
-
-        btnMaps.href = mapsUrl;
-        btnMaps.style.display = 'inline-block';
-
-        if(destMarker) map.removeLayer(destMarker);
-        if(routeLine) map.removeLayer(routeLine);
-        destMarker = L.marker([dest.lat, dest.lon]).addTo(map).bindPopup(dest.display_name).openPopup();
-        routeLine = L.geoJSON(route.geometry, {color: 'blue'}).addTo(map);
-        const bounds = L.geoJSON(route.geometry).getBounds();
-        map.fitBounds(bounds.pad(0.2));
-
-      }catch(err){
-        errorMsg.textContent = err.message || 'Erro ao calcular rota';
-        errorMsg.style.display = 'block';
-        resultDiv.style.display = 'block';
-        console.error(err);
-      }finally{
-        loader.style.display = 'none';
-      }
-    });
-
-    document.getElementById('btnClear').addEventListener('click', ()=>{
-      document.getElementById('address').value='';
-      document.getElementById('result').style.display='none';
-      document.getElementById('loader').style.display='none';
-      if(destMarker) { map.removeLayer(destMarker); destMarker=null; }
-      if(routeLine) { map.removeLayer(routeLine); routeLine=null; }
-      map.setView([origin.lat, origin.lon], 13);
-    });
-  </script>
+updatePagamentoOptions();
+</script>
 </body>
 </html>
