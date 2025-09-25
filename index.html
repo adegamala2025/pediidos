@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculadora Adega Mala</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;padding:0;background:#f6f7fb;color:#222}
+    header{background:#0b5ed7;color:#fff;padding:14px 18px;text-align:center}
+    header h1{margin:0;font-size:1.25rem}
+    .container{max-width:900px;margin:18px auto;padding:18px;background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(10,10,20,0.08)}
+    label{display:block;margin:8px 0 6px;font-weight:600}
+    input[type=text]{width:100%;padding:12px;border:1px solid #d6d8df;border-radius:8px;font-size:1rem}
+    button,.action-btn{background:#0b5ed7;color:#fff;padding:12px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;display:inline-block}
+    button:hover,.action-btn:hover{background:#094cb1}
+    #map{height:360px;border-radius:12px;margin-top:12px}
+    .result{margin-top:14px;padding:16px;border-radius:12px;background:#f1f6ff}
+    .muted{color:#666;font-size:0.9rem}
+    footer{margin-top:12px;font-size:0.85rem;color:#666;text-align:center}
+    #loader{display:none;margin-top:12px;text-align:center}
+    .spinner{width:32px;height:32px;border:4px solid #ddd;border-top:4px solid #0b5ed7;border-radius:50%;margin:auto;animation:spin 1s linear infinite}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .error{color:#b00020;margin-top:10px;font-weight:600}
+    .actions{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px}
+    .wa-btn{background:#25d366}
+    .wa-btn:hover{background:#1ea956}
+    .maps-btn{background:#ff5733}
+    .maps-btn:hover{background:#e04e2d}
+    @media (max-width:600px){
+      .actions{flex-direction:column}
+      button,.action-btn{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📦 Calculadora Adega Mala</h1>
+  </header>
+
+  <main class="container">
+    <p><strong>Origem fixa:</strong> Ladeira do Ypiranga, 29 — Cidade Nova, Salvador (CEP: 40313-030)</p>
+    <p class="muted">Preço por km: <strong>R$1,00</strong>. Valor mínimo: <strong>R$3,00</strong> para distâncias menores que 3 km.</p>
+
+    <div>
+      <label for="address">Destino (endereço ou CEP em Salvador)</label>
+      <input type="text" id="address" placeholder="Ex: CEP 40020-000 ou Av. Sete de Setembro, Salvador" />
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="btnCalc">Calcular frete</button>
+      <button id="btnClear" style="background:#6c757d">Limpar</button>
+    </div>
+
+    <div id="loader"><div class="spinner"></div><p>Calculando rota...</p></div>
+
+    <div class="result" id="result" aria-live="polite" style="display:none">
+      <div id="outDistance"></div>
+      <div id="outPrice" style="font-size:1.2rem;font-weight:700;margin-top:6px"></div>
+      <div class="muted" id="note"></div>
+      <div class="error" id="errorMsg" style="display:none"></div>
+      <div class="actions">
+        <a id="btnWhatsapp" href="#" target="_blank" class="action-btn wa-btn" style="display:none">📲 Enviar no WhatsApp</a>
+        <a id="btnMaps" href="#" target="_blank" class="action-btn maps-btn" style="display:none">🗺️ Abrir no Google Maps</a>
+      </div>
+    </div>
+
+    <div id="map"></div>
+
+    <footer>
+      🚗 Cálculo feito com base na rota real via <strong>OSRM</strong> + <strong>OpenStreetMap</strong>.
+    </footer>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const PRICE_PER_KM = 1.00;
+    const MIN_PRICE = 3.00;
+
+    let origin = { lat: -12.9632984, lon: -38.4881642, address: 'Ladeira do Ypiranga, 29 - Cidade Nova, Salvador' };
+
+    const map = L.map('map').setView([origin.lat, origin.lon], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: 'Map data © OpenStreetMap contributors'
+    }).addTo(map);
+
+    const originMarker = L.marker([origin.lat, origin.lon]).addTo(map).bindPopup('Origem fixa: Ladeira do Ypiranga, 29').openPopup();
+    let destMarker = null;
+    let routeLine = null;
+
+    const nfKm = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const nfBR = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    async function geocodeAddress(addr){
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(addr)}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if(!data || data.length === 0) throw new Error('Endereço/CEP não encontrado');
+      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), display_name: data[0].display_name };
+    }
+
+    async function getRoute(dest){
+      const url = `https://router.project-osrm.org/route/v1/driving/${origin.lon},${origin.lat};${dest.lon},${dest.lat}?overview=full&geometries=geojson`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if(!data.routes || data.routes.length === 0) throw new Error('Não foi possível calcular rota');
+      return data.routes[0];
+    }
+
+    document.getElementById('btnCalc').addEventListener('click', async ()=>{
+      const addr = document.getElementById('address').value.trim();
+      const loader = document.getElementById('loader');
+      const resultDiv = document.getElementById('result');
+      const errorMsg = document.getElementById('errorMsg');
+      const btnWhatsapp = document.getElementById('btnWhatsapp');
+      const btnMaps = document.getElementById('btnMaps');
+
+      if(addr === ''){ 
+        errorMsg.textContent = 'Informe um endereço ou CEP de destino.';
+        errorMsg.style.display = 'block';
+        resultDiv.style.display = 'block';
+        return; 
+      }
+
+      loader.style.display = 'block';
+      errorMsg.style.display = 'none';
+      resultDiv.style.display = 'none';
+      btnWhatsapp.style.display = 'none';
+      btnMaps.style.display = 'none';
+
+      try{
+        const dest = await geocodeAddress(addr + ', Salvador, BA');
+        const route = await getRoute(dest);
+        const distanceKm = route.distance / 1000;
+        const roundedKm = Math.round(distanceKm * 100) / 100;
+
+        let price = distanceKm < 3 ? MIN_PRICE : distanceKm * PRICE_PER_KM;
+        let note = distanceKm < 3 ? 'Aplicado valor mínimo porque a distância é menor que 3 km.' : '';
+
+        document.getElementById('outDistance').textContent = `Distância da rota: ${nfKm.format(distanceKm)} km`;
+        document.getElementById('outPrice').textContent = `Frete: ${nfBR.format(price)}`;
+        document.getElementById('note').textContent = note;
+        resultDiv.style.display = 'block';
+
+        // Google Maps via lat/lon (garante que funciona)
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin.lat},${origin.lon}&destination=${dest.lat},${dest.lon}`;
+
+        // WhatsApp mensagem curta
+        const msg =
+          `🚚 Novo frete!\n\n` +
+          `🏁 Destino: ${dest.display_name}\n` +
+          `📏 Distância: ${nfKm.format(distanceKm)} km\n` +
+          `💰 Valor: ${nfBR.format(price)}\n\n` +
+          `➡️ Abrir rota: ${mapsUrl}`;
+
+        btnWhatsapp.href = `https://wa.me/5571991663037?text=${encodeURIComponent(msg)}`;
+        btnWhatsapp.style.display = 'inline-block';
+
+        btnMaps.href = mapsUrl;
+        btnMaps.style.display = 'inline-block';
+
+        if(destMarker) map.removeLayer(destMarker);
+        if(routeLine) map.removeLayer(routeLine);
+        destMarker = L.marker([dest.lat, dest.lon]).addTo(map).bindPopup(dest.display_name).openPopup();
+        routeLine = L.geoJSON(route.geometry, {color: 'blue'}).addTo(map);
+        const bounds = L.geoJSON(route.geometry).getBounds();
+        map.fitBounds(bounds.pad(0.2));
+
+      }catch(err){
+        errorMsg.textContent = err.message || 'Erro ao calcular rota';
+        errorMsg.style.display = 'block';
+        resultDiv.style.display = 'block';
+        console.error(err);
+      }finally{
+        loader.style.display = 'none';
+      }
+    });
+
+    document.getElementById('btnClear').addEventListener('click', ()=>{
+      document.getElementById('address').value='';
+      document.getElementById('result').style.display='none';
+      document.getElementById('loader').style.display='none';
+      if(destMarker) { map.removeLayer(destMarker); destMarker=null; }
+      if(routeLine) { map.removeLayer(routeLine); routeLine=null; }
+      map.setView([origin.lat, origin.lon], 13);
+    });
+  </script>
+</body>
+</html>
